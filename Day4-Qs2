@@ -1,0 +1,105 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Define the structure for a node
+struct Node {
+    int data;
+    struct Node* next;
+};
+
+// Define the structure for a circular queue
+struct CircularQueue {
+    struct Node *front, *rear;
+};
+
+// Function to create a new node
+struct Node* createNode(int value) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->data = value;
+    newNode->next = NULL;
+    return newNode;
+}
+
+// Function to initialize the queue
+void initQueue(struct CircularQueue* q) {
+    q->front = q->rear = NULL;
+}
+
+// Function to check if the queue is empty
+int isEmpty(struct CircularQueue* q) {
+    return q->front == NULL;
+}
+
+// Function to enqueue an element at the rear of the circular queue
+void enqueue(struct CircularQueue* q, int value) {
+    struct Node* newNode = createNode(value);
+    
+    if (isEmpty(q)) {
+        q->front = q->rear = newNode;
+        q->rear->next = q->front; // Circular linking
+    } else {
+        q->rear->next = newNode;
+        q->rear = newNode;
+        q->rear->next = q->front; // Circular linking
+    }
+    printf("%d enqueued to the circular queue\n", value);
+}
+
+// Function to dequeue an element from the front of the circular queue
+int dequeue(struct CircularQueue* q) {
+    if (isEmpty(q)) {
+        printf("Circular queue is empty!\n");
+        return -1;
+    }
+
+    int value;
+    if (q->front == q->rear) { // Only one element in the queue
+        value = q->front->data;
+        free(q->front);
+        q->front = q->rear = NULL;
+    } else {
+        struct Node* temp = q->front;
+        value = temp->data;
+        q->front = q->front->next;
+        q->rear->next = q->front; // Circular linking
+        free(temp);
+    }
+
+    return value;
+}
+
+// Function to display the circular queue
+void display(struct CircularQueue* q) {
+    if (isEmpty(q)) {
+        printf("Circular queue is empty!\n");
+        return;
+    }
+
+    struct Node* temp = q->front;
+    printf("Circular queue elements: ");
+    do {
+        printf("%d -> ", temp->data);
+        temp = temp->next;
+    } while (temp != q->front);
+    printf("(Back to front)\n");
+}
+
+int main() {
+    struct CircularQueue q;
+    initQueue(&q);
+
+    // Enqueue elements
+    enqueue(&q, 10);
+    enqueue(&q, 20);
+    enqueue(&q, 30);
+    display(&q);
+
+    // Dequeue elements
+    printf("Dequeued element: %d\n", dequeue(&q));
+    display(&q);
+
+    enqueue(&q, 40);
+    display(&q);
+
+    return 0;
+}
