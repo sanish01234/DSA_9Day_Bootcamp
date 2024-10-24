@@ -1,0 +1,110 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_VERTICES 100
+#define MAX_EDGES 1000
+
+// Structure to represent an edge
+struct Edge {
+    int src, dest, weight;
+};
+
+// Structure to represent a graph
+struct Graph {
+    int numVertices, numEdges;
+    struct Edge edges[MAX_EDGES];
+};
+
+// Union-Find data structure
+int parent[MAX_VERTICES], rank[MAX_VERTICES];
+
+// Function to find the parent of a node
+int find(int i) {
+    if (parent[i] == -1) {
+        return i;
+    }
+    return find(parent[i]);
+}
+
+// Function to perform union of two subsets
+void unionSets(int x, int y) {
+    int xroot = find(x);
+    int yroot = find(y);
+
+    if (rank[xroot] < rank[yroot]) {
+        parent[xroot] = yroot;
+    } else if (rank[xroot] > rank[yroot]) {
+        parent[yroot] = xroot;
+    } else {
+        parent[yroot] = xroot;
+        rank[xroot]++;
+    }
+}
+
+// Function to compare two edges (used for sorting)
+int compare(const void* a, const void* b) {
+    struct Edge* edge1 = (struct Edge*)a;
+    struct Edge* edge2 = (struct Edge*)b;
+    return edge1->weight - edge2->weight;
+}
+
+// Function to perform Kruskal's algorithm
+void kruskal(struct Graph* graph) {
+    // Initialize parent and rank arrays
+    for (int i = 0; i < graph->numVertices; i++) {
+        parent[i] = -1;
+        rank[i] = 0;
+    }
+
+    // Sort edges by weight
+    qsort(graph->edges, graph->numEdges, sizeof(graph->edges[0]), compare);
+
+    printf("Edges in the Minimum Spanning Tree:\n");
+    int mstWeight = 0;
+
+    for (int i = 0; i < graph->numEdges; i++) {
+        int src = graph->edges[i].src;
+        int dest = graph->edges[i].dest;
+        int weight = graph->edges[i].weight;
+
+        // Check if adding this edge would form a cycle
+        if (find(src) != find(dest)) {
+            printf("%d -- %d == %d\n", src, dest, weight);
+            mstWeight += weight;
+            unionSets(src, dest);
+        }
+    }
+    printf("Total weight of Minimum Spanning Tree: %d\n", mstWeight);
+}
+
+// Main function to demonstrate Kruskal's algorithm
+int main() {
+    struct Graph graph;
+    graph.numVertices = 4; // Number of vertices
+    graph.numEdges = 5; // Number of edges
+
+    // Adding edges (source, destination, weight)
+    graph.edges[0].src = 0;
+    graph.edges[0].dest = 1;
+    graph.edges[0].weight = 10;
+
+    graph.edges[1].src = 0;
+    graph.edges[1].dest = 2;
+    graph.edges[1].weight = 6;
+
+    graph.edges[2].src = 0;
+    graph.edges[2].dest = 3;
+    graph.edges[2].weight = 5;
+
+    graph.edges[3].src = 1;
+    graph.edges[3].dest = 3;
+    graph.edges[3].weight = 15;
+
+    graph.edges[4].src = 2;
+    graph.edges[4].dest = 3;
+    graph.edges[4].weight = 4;
+
+    kruskal(&graph); // Run Kruskal's algorithm
+
+    return 0;
+}
