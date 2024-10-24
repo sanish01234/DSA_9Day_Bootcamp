@@ -1,0 +1,82 @@
+#include <stdio.h>
+
+#define THRESHOLD 10 // Threshold to switch from quicksort to bubble sort
+
+// Function to perform bubble sort
+void bubbleSort(int arr[], int n) {
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (arr[j] > arr[j + 1]) {
+                // Swap arr[j] and arr[j + 1]
+                int temp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = temp;
+            }
+        }
+    }
+}
+
+// Function to partition the array for quicksort
+int partition(int arr[], int low, int high) {
+    int pivot = arr[high]; // Choosing the last element as pivot
+    int i = low - 1; // Index of the smaller element
+
+    for (int j = low; j < high; j++) {
+        if (arr[j] <= pivot) {
+            i++;
+            // Swap arr[i] and arr[j]
+            int temp = arr[i];
+            arr[i] = arr[j];
+            arr[j] = temp;
+        }
+    }
+    // Swap arr[i + 1] and arr[high] (or pivot)
+    int temp = arr[i + 1];
+    arr[i + 1] = arr[high];
+    arr[high] = temp;
+
+    return i + 1; // Return the partitioning index
+}
+
+// Function to perform quicksort
+void quickSort(int arr[], int low, int high) {
+    if (low < high) {
+        int pi = partition(arr, low, high); // Partitioning index
+
+        quickSort(arr, low, pi - 1); // Recursively sort elements before partition
+        quickSort(arr, pi + 1, high); // Recursively sort elements after partition
+    }
+}
+
+// Function to perform hybrid sort
+void hybridSort(int arr[], int n) {
+    if (n <= THRESHOLD) {
+        bubbleSort(arr, n); // Use bubble sort for small arrays
+    } else {
+        quickSort(arr, 0, n - 1); // Use quicksort for larger arrays
+    }
+}
+
+// Function to print the array
+void printArray(int arr[], int size) {
+    for (int i = 0; i < size; i++) {
+        printf("%d ", arr[i]);
+    }
+    printf("\n");
+}
+
+// Main function to demonstrate hybrid sort
+int main() {
+    int arr[] = {64, 34, 25, 12, 22, 11, 90, 88, 37, 45, 54, 23};
+    int n = sizeof(arr) / sizeof(arr[0]);
+
+    printf("Original array:\n");
+    printArray(arr, n);
+
+    hybridSort(arr, n);
+
+    printf("Sorted array:\n");
+    printArray(arr, n);
+
+    return 0;
+}
